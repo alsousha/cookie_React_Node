@@ -1,42 +1,71 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
+
 function App() {
-  const handleLogin = () => {
-    fetch('http://localhost:5000/api/login', {
-      method: 'POST',
-      credentials: 'include', // Ensures cookies are sent with the request
-    }).then(response => {
-      if (response.ok) {
-        console.log('Logged in successfully');
-      }
-    });
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'firstName') {
+      setFirstName(value);
+    } else if (name === 'lastName') {
+      setLastName(value);
+    }
   };
 
-  const handleCheckSession = () => {
-    fetch('http://localhost:5000/', {
-      method: 'GET',
-      credentials: 'include', // Ensures cookies are sent with the request
-    })
-      .then(response => response.text())
-      .then(data => console.log('Session data:', data));
+  const handleLogin = () => {
+    axios.post('/login', { firstName, lastName })
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error('Login failed:', error);
+      });
+  };
+
+  const handleCheckAuth = () => {
+    axios.get('/check-auth')
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error('Check auth failed:', error);
+      });
   };
 
   const handleLogout = () => {
-    fetch('http://localhost:5000/clear-cookie', {
-      method: 'GET',
-      credentials: 'include', // Ensures cookies are sent with the request
-    }).then(response => {
-      if (response.ok) {
-        console.log('Cookie cleared');
-      }
-    });
+    axios.get('/logout')
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error('Logout failed:', error);
+      });
   };
+
   return (
-    <div className='App'>
-      <button onClick={handleLogin}>login</button>
-      <button onClick={handleCheckSession}>Check Session</button>
-      <button onClick={handleLogout}>logout</button>
+    <div>
+      <form>
+        <input
+          name="firstName"
+          value={firstName}
+          onChange={handleInputChange}
+          placeholder="First Name"
+        />
+        <input
+          name="lastName"
+          value={lastName}
+          onChange={handleInputChange}
+          placeholder="Last Name"
+        />
+        <button onClick={handleLogin}>Login</button>
+        <button onClick={handleCheckAuth}>Check if Logged In</button>
+        <button onClick={handleLogout}>Logout</button>
+      </form>
+      
     </div>
   );
 }
